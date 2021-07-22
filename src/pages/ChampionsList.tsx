@@ -3,8 +3,15 @@ import styled from "styled-components";
 import classnames from "classnames";
 import Champion from "../components/Champion";
 import axios from "axios";
+import championIcon from "../assets/championIcon.png";
 import ChampionModel from "../models/ChampionModel";
+import ChampionTrendItem from "../components/ChampionTrendItem";
 import { isTemplateTail } from "typescript";
+import championTier1 from "../assets/icon-champtier-1.png";
+import tierStay from "../assets/icon-championtier-stay.png";
+import champion32 from "../assets/champion32.png"
+import ChampionTrendHeader from "../components/ChampionTrendHeader";
+import ChampionTrendToolbar from "../components/ChampionTrendToolbar";
 
 interface ChampionListProps{
 
@@ -119,7 +126,7 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
         if (input === ""){
             return temp;
         }
-        return temp.filter((c, dix) => c.name!!.indexOf(input) > -1);
+        return temp.filter((c, dix) => c.name?.includes(input));
     }
 
     render() {
@@ -156,7 +163,33 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
                     </div>
                 </ChampionsWrapper>
                 <ChampionsTrendWrapper>
-                    trends
+                    <div className="header">
+                        <div className="item">챔피언 순위</div>
+                        <div className="item-wrap">
+                            <div className="select item"><img src={championIcon}/>티어</div>
+                            <div className="item">승률</div>
+                            <div className="item">픽률</div>
+                            <div className="item">밴률</div>
+                        </div>
+                    </div>
+                    <div className="list">
+                        <ChampionTrendToolbar>
+                            <div hidden={true}>전체</div>
+                            <div className="select">탑</div>
+                            <div>정글</div>
+                            <div>미드</div>
+                            <div>바텀</div>
+                            <div>서포터</div>
+                        </ChampionTrendToolbar>
+                        <ChampionTrendHeader>
+                            <div>#</div>
+                            <div>챔피언</div>
+                            <div>승률</div>
+                            <div>픽률</div>
+                            <div>티어</div>
+                        </ChampionTrendHeader>               
+                        <ChampionTrendItem />
+                    </div>
                 </ChampionsTrendWrapper>
             </ChampionListPageWrapper>
         )
@@ -214,6 +247,50 @@ const ChampionsWrapper = styled.div`
 const ChampionsTrendWrapper = styled.div`
     flex: 1;
     background-color: white;
-    
+    border-right: 1px solid #e9eff4;
+
+    & > .header{
+        display: flex;
+        justify-content: space-between;
+        padding: 0 17px;
+        border-bottom: 1px solid #e9eff4;
+        line-height: 60px;
+        font-weight: bold;
+        
+        & > .item-wrap{
+            display: flex;
+            justify-content: space-between;
+            
+
+            & > .item{
+                line-height: 60px;
+                padding: 0 12px;
+                color: rgba(0, 0, 0, .6);
+                cursor: pointer;
+                position: relative;
+
+                &.select {
+                    box-shadow: 0px -3px 0px 0px #5383e8 inset;
+                    color: #5383e8;
+                }
+
+                &:not(:last-child)::after{
+                    content: "";
+                    width: 1px;
+                    height: 20px;
+                    background: #eee;
+                    position: absolute;
+                    right: -1px;
+                    top: 35%;
+                }
+            }
+        }
+    }
+
+    & > .list{
+        height: 100vh;
+        background-color: #f7f7f7;
+        padding: 20px;
+    }
 `
 
