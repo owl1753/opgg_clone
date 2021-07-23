@@ -3,25 +3,32 @@ import styled from "styled-components";
 import classnames from "classnames";
 import Champion from "../components/Champion";
 import axios from "axios";
-import championIcon from "../assets/championIcon.png";
+
 import ChampionModel from "../models/ChampionModel";
 import ChampionTrendItem from "../components/ChampionTrendItem";
-import { isTemplateTail } from "typescript";
+import { collapseTextChangeRangesAcrossMultipleVersions, isTemplateTail } from "typescript";
 import championTier1 from "../assets/icon-champtier-1.png";
 import tierStay from "../assets/icon-championtier-stay.png";
 import champion32 from "../assets/champion32.png"
 import ChampionTrendHeader from "../components/ChampionTrendHeader";
 import ChampionTrendToolbar from "../components/ChampionTrendToolbar";
+import ChampionTrendModel from "../models/ChampionTrendModel";
+import championTier from "../assets/championIcon.png";
+import championTierN from "../assets/icon-champion-n.png";
 
 interface ChampionListProps{
 
 }
 
 interface ChampionListState{
-    allChampions: ChampionModel[]
-    champions: ChampionModel[]
+    allChampions: ChampionModel[];
+    champions: ChampionModel[];
     type: string;
     input: string;
+
+    trendChampions: ChampionTrendModel[];
+    trendType: string;
+    trendPosition: string;
 }
 
 const ChampionListPageWrapper = styled.div`
@@ -42,6 +49,10 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
             champions: [],
             type: "ALL",
             input: "",
+
+            trendChampions: [],
+            trendType: "tier",
+            trendPosition: "top",
         }
     }
 
@@ -55,9 +66,13 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
                 position: data.position
             })
         );
+
+        const trendChampions = await this.getTrendList("tier");
+
         this.setState({
             allChampions,
             champions: allChampions,
+            trendChampions,
         });
     }
     
@@ -129,6 +144,39 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
         return temp.filter((c, dix) => c.name?.includes(input));
     }
 
+    onClickTrendType = (type: string) => async () => {
+        const trendChampions = await this.getTrendList(type);
+        this.setState({trendType: type, trendChampions, trendPosition: type === "tier" ? "top" : "all"});
+    }
+
+    onClickTrendPosition = (position: string) => async() => {
+        const trendChampions = await this.getTrendList(this.state.trendType, position);
+        this.setState({trendChampions, trendPosition: position});
+    }
+
+    getTrendList = async (type:string, position?: string) => {
+        if(!position){
+            if (type === "tier") position = "top"
+            else position = "all";
+        }
+        const responseTrend = await axios.get(`http://opgg.dudco.kr/champion/trend/${type}/${position}`);
+        const trendChampions = responseTrend.data.map((data: any) => 
+            new ChampionTrendModel({
+                id: data.id,
+                rank: data.rank,
+                change: data.change,
+                name: data.name,
+                position: data.position,
+                winRate: data.winRate,
+                pickRate: data.pickRate,
+                banRate: data.banRate,
+                tierIcon: data.tierIcon,
+            })
+        );
+
+        return trendChampions;
+    }
+
     render() {
         return (
             <ChampionListPageWrapper>
@@ -166,29 +214,65 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
                     <div className="header">
                         <div className="item">챔피언 순위</div>
                         <div className="item-wrap">
-                            <div className="select item"><img src={championIcon}/>티어</div>
-                            <div className="item">승률</div>
-                            <div className="item">픽률</div>
-                            <div className="item">밴률</div>
+                            <div 
+                                className={classnames("item", {select: this.state.trendType === "tier"})} 
+                                onClick={this.onClickTrendType("tier")}
+                            >
+                                <img src={this.state.trendType === "tier" ? championTier : championTierN}/>
+                                티어
+                            </div>
+                            <div 
+                                className={classnames("item", {select: this.state.trendType === "winratio"})} 
+                                onClick={this.onClickTrendType("winratio")}
+                            >
+                                승률
+                            </div>
+                            <div 
+                                className={classnames("item", {select: this.state.trendType === "pickratio"})} 
+                                onClick={this.onClickTrendType("pickratio")}
+                            >
+                                픽률
+                            </div>
+                            <div 
+                                className={classnames("item", {select: this.state.trendType === "banratio"})} 
+                                onClick={this.onClickTrendType("banratio")}
+                            >
+                                밴률
+                            </div>
                         </div>
                     </div>
                     <div className="list">
                         <ChampionTrendToolbar>
-                            <div hidden={true}>전체</div>
-                            <div className="select">탑</div>
-                            <div>정글</div>
-                            <div>미드</div>
-                            <div>바텀</div>
-                            <div>서포터</div>
+                            <div className={classnames({select: this.state.trendPosition === "all"})} onClick={this.onClickTrendPosition("all")} hidden={this.state.trendType === "tier"}>전체</div>
+                            <div className={classnames({select: this.state.trendPosition === "top"})} onClick={this.onClickTrendPosition("top")}>탑</div>
+                            <div className={classnames({select: this.state.trendPosition === "jungle"})} onClick={this.onClickTrendPosition("jungle")}>정글</div>
+                            <div className={classnames({select: this.state.trendPosition === "mid"})} onClick={this.onClickTrendPosition("mid")}>미드</div>
+                            <div className={classnames({select: this.state.trendPosition === "adc"})} onClick={this.onClickTrendPosition("adc")}>바텀</div>
+                            <div className={classnames({select: this.state.trendPosition === "support"})} onClick={this.onClickTrendPosition("support")}>서포터</div>
                         </ChampionTrendToolbar>
                         <ChampionTrendHeader>
                             <div>#</div>
                             <div>챔피언</div>
-                            <div>승률</div>
-                            <div>픽률</div>
-                            <div>티어</div>
+                            <div hidden={this.state.trendType === "banratio"}>승률</div>
+                            <div hidden={this.state.trendType === "banratio"}>픽률</div>
+                            <div hidden={this.state.trendType !== "tier"}>티어</div>
+                            <div hidden={this.state.trendType !== "banratio"}>밴률</div>
                         </ChampionTrendHeader>               
-                        <ChampionTrendItem />
+                        {
+                            this.state.trendChampions.map(c => 
+                            <ChampionTrendItem
+                                championID={c.id}
+                                change={c.change}
+                                name={c.name}
+                                position={c.position}
+                                win={c.winRate}
+                                pick={c.pickRate}
+                                ban={c.banRate}
+                                tier={c.tierIcon}
+                                rank={c.rank}
+                                type={this.state.trendType}
+                            />)
+                        }
                     </div>
                 </ChampionsTrendWrapper>
             </ChampionListPageWrapper>
@@ -197,7 +281,6 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
 }   
 
 const ChampionsWrapper = styled.div`
-    background-color: white;
     border-right: 1px solid #e9eff4;
 
     & > .header{
@@ -205,6 +288,7 @@ const ChampionsWrapper = styled.div`
         justify-content: space-between;
         padding: 0 17px;
         border-bottom: 1px solid #e9eff4;
+        background-color: white;
 
         & > .item-wrap{
             display: flex;
@@ -287,8 +371,7 @@ const ChampionsTrendWrapper = styled.div`
         }
     }
 
-    & > .list{
-        height: 100vh;
+    & > div.list{
         background-color: #f7f7f7;
         padding: 20px;
     }

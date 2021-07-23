@@ -6,7 +6,8 @@ const ChampionTrendToolbar = styled.div`
 
     & > div{
         flex: 1;
-        background-color: white;
+        background-color: #f7f7f7;
+        color: rgba(0, 0, 0, .4);
         border: 1px solid #e9eff4;
         text-align: center;
         padding: 10px 0;
@@ -20,6 +21,7 @@ const ChampionTrendToolbar = styled.div`
 
         &.select{
             color: black;
+            background-color: white;
         }
     }
 `

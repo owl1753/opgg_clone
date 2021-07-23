@@ -1,6 +1,11 @@
 import React from "react"
 import championTier1 from "../assets/icon-champtier-1.png";
+
+import classnames from "classnames"
 import tierStay from "../assets/icon-championtier-stay.png";
+import tierDown from "../assets/icon-championtier-down.png";
+import tierUp from "../assets/icon-championtier-up.png";
+
 import champion32 from "../assets/champion32.png"
 import championIcon from "../assets/championIcon.png";
 import styled from "styled-components";
@@ -10,14 +15,22 @@ interface ChampionTrendItemProps{
     championID: number;
     change: number;
     name: string;
-    position: string[];
+    position: string;
     win: string;
     pick: string;
-    tier: number;
+    ban: string;
+    tier: string;
+    rank: string;
+    type: string;
 }
 
 const ChampionTrendItemWrapper = styled(ChampionTrendHeader)`
     background-color: white;
+    border: 1px solid #e9eff4;
+
+    &:not(:last-child){
+        border-bottom: none;
+    }
 
     & > .rank{
         font-style: italic;
@@ -34,16 +47,25 @@ const ChampionTrendItemWrapper = styled(ChampionTrendHeader)`
             font-size: 14px;
             line-height: 14px;
             padding: 0 18px;
+            width: 50px;
+            box-sizing: border-box;
 
             & > img{
                 margin-right: 5px;
             } 
+
+            &.up{
+                color: green;
+            }
+            
+            &.down {
+                color: red;
+            }
         }
         & > .champ-img{
             width: 32px;
             height: 32px;
             background-image: url(${champion32});
-            background-position: 0 0;
         }
         & > .champ-desc{
             font-size: 12px;
@@ -57,28 +79,45 @@ const ChampionTrendItemWrapper = styled(ChampionTrendHeader)`
             }
         }
     }
+
+    & > .select{
+        color: #5383e8;
+        order: 
+    }
 `
 
-const ChampionTrendItem: React.FC = () => {
+const ChampionTrendItem: React.FC<ChampionTrendItemProps> = (props) => {
+
+    const getTierChangeIcon = () => {
+        if(props.change > 0) {
+            return tierUp;
+        } else if(props.change < 0){
+            return tierDown;
+        } else {
+            return tierStay;
+        }
+    }
+
     return (
         <ChampionTrendItemWrapper>
-            <div className="rank">1</div>
-                <div className="champ">
-                    <div className="change">
-                        <img src={tierStay} alt="" />
-                        0
-                    </div>
-                    <div className="champ-img"/>
+            <div className="rank">{props.rank}</div>
+            <div className="champ">
+                <div className={classnames("change", {up: props.change > 0, down: props.change < 0})} hidden={props.type !== 'tier'}>
+                    <img src={getTierChangeIcon()} alt="" hidden={props.type !== 'tier'}/>
+                    <span hidden={props.type !== 'tier'}>{Math.abs(props.change)}</span>
+                </div>
+                <div className={`champ-img __spc32-${props.championID}`}/>
                     <div className="champ-desc">
-                        <div>아트록스</div>
-                        <div>탑</div>
+                        <div>{props.name}</div>
+                        <div>{props.position}</div>
                     </div>
-                </div>
-                <div className="win">58.23%</div>
-                <div className="pick">14.21%</div>
-                <div className="tier">
-                    <img src={championTier1} alt="" />
-                </div>
+            </div>
+            <div className={classnames("win", {select: props.type === "winratio"})} hidden={props.type === 'banratio'}>{props.win}</div>
+            <div className={classnames("pick", {select: props.type === "pickratio"})} hidden={props.type === 'banratio'}>{props.pick}</div>
+            <div className={classnames("ban", {select: props.type === "banratio"})} hidden={props.type !== 'banratio'}>{props.ban}</div>
+            <div className="tier" hidden={props.type !== 'tier'}>
+                <img src={props.tier} alt="" />
+            </div>
         </ChampionTrendItemWrapper>                
     )
 }
