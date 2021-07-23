@@ -35,12 +35,15 @@ const ChampionTrendItemWrapper = styled(ChampionTrendHeader)`
     & > .rank{
         font-style: italic;
         font-size: 20px;
+        order: -1;
     }
 
     & > .champ{
         display: flex;
         align-items: center;
         text-align: left;
+        order: -1;
+
         & > .change{
             display: flex;
             align-items: center;
@@ -82,7 +85,7 @@ const ChampionTrendItemWrapper = styled(ChampionTrendHeader)`
 
     & > .select{
         color: #5383e8;
-        order: 
+        order: -1;
     }
 `
 

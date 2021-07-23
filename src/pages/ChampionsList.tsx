@@ -253,8 +253,8 @@ export default class ChampionsList extends React.Component<ChampionListProps, Ch
                         <ChampionTrendHeader>
                             <div>#</div>
                             <div>챔피언</div>
-                            <div hidden={this.state.trendType === "banratio"}>승률</div>
-                            <div hidden={this.state.trendType === "banratio"}>픽률</div>
+                            <div className={classnames({select: this.state.trendType === "winratio"})} hidden={this.state.trendType === "banratio"}>승률</div>
+                            <div className={classnames({select: this.state.trendType === "pickratio"})} hidden={this.state.trendType === "banratio"}>픽률</div>
                             <div hidden={this.state.trendType !== "tier"}>티어</div>
                             <div hidden={this.state.trendType !== "banratio"}>밴률</div>
                         </ChampionTrendHeader>               

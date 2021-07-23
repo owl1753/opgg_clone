@@ -21,12 +21,18 @@ const ChampionTrendHeader = styled.div`
         &:nth-child(1){
             flex: 0.5;
             text-align: center;
+            order: -1;
         }
 
         &:nth-child(2){
            flex: 3;
+           order: -1;
         }
-    }    
+    }   
+
+    & > .select{
+        order: -1;
+    }
 `
 
 export default ChampionTrendHeader
